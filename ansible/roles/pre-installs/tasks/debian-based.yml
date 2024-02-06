@@ -1,11 +1,11 @@
-- name: Install or Update required system packages
-  apt:
+- name: Install required system packages
+  ansible.builtin.apt:
     pkg:
       - adduser
       - libfontconfig1
       - musl
       - curl
       - wget
-    state: latest
+    state: present
     update_cache: true
   become: true
