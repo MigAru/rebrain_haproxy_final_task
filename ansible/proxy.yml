@@ -1,9 +1,11 @@
 ---
-- name: Haproxy
+- name: Proxy
   hosts:
     - rebrain
   roles:
     - pre-installs
     - certs
     - logs
+    - keepalived
     - haproxy
+    - prometheus

@@ -1,7 +1,6 @@
 ---
 - name: Grafana
-  hosts:
-    - rebrain-master
+  hosts: master
   roles:
     - pre-installs
     - grafana

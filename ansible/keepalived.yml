@@ -1,6 +1,0 @@
----
-- name: Keepalived
-  hosts:
-    - rebrain
-  roles:
-    - keepalived
