@@ -1,0 +1,9 @@
+---
+- name: Haproxy
+  hosts:
+    - rebrain
+  roles:
+    - pre-installs
+    - certs
+    - logs
+    - haproxy

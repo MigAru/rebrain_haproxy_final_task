@@ -1,0 +1,10 @@
+---
+- name: Copy certs
+  ansible.builtin.copy:
+    src: rebrain.pem
+    dest: /etc/haproxy/rebrain.pem
+    owner: root
+    group: root
+    mode: "644"
+    backup: yes
+  become: true

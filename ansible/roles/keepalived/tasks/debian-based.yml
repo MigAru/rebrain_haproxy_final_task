@@ -1,0 +1,28 @@
+# знаю что можно сделать с заменой ip и тд, но делаю под определенное окружение а не под универсальность :)
+- name: Copy master configuration
+  ansible.builtin.copy:
+    src: master.conf
+    dest: /etc/keepalived/keepalived.conf
+    owner: root
+    group: root
+    mode: "644"
+    backup: yes
+  become: true
+  when: inventory_hostname == 'master'
+
+- name: Copy backup configuration
+  ansible.builtin.copy:
+    src: backup.conf
+    dest: /etc/keepalived/keepalived.conf
+    owner: root
+    group: root
+    mode: "644"
+    backup: yes
+  become: true
+  when: inventory_hostname == 'backup'
+
+- name: Restart keepalived service
+  ansible.builtin.systemd_service:
+    name: keepalived
+    state: restarted
+  become: true

@@ -1,0 +1,63 @@
+---
+- name: Install or Update haproxy
+  apt:
+    pkg:
+      - haproxy
+    state: latest
+    update_cache: true
+  become: true
+
+- name: Copy configuration for test
+  ansible.builtin.copy:
+    src: haproxy.cfg
+    dest: /tmp/haproxy.cfg
+    owner: root
+    group: root
+    mode: "644"
+  become: true
+
+- name: Test new configuration
+  ansible.builtin.shell: "haproxy -c -f /tmp/haproxy.cfg"
+  become: true
+
+- name: Set new configuration
+  ansible.builtin.copy:
+    src: haproxy.cfg
+    dest: /etc/haproxy/haproxy.cfg
+  become: true
+
+- name: Download exporter
+  ansible.builtin.unarchive:
+    src: https://github.com/prometheus/haproxy_exporter/releases/download/v0.8.0/{{ exporter_name }}.tar.gz
+    dest: /tmp/
+    remote_src: yes
+
+- name: Copy exporter to bin
+  ansible.builtin.copy:
+    src: /tmp/{{ exporter_name }}/haproxy_exporter
+    dest: /usr/bin/haproxy_exporter
+    owner: haproxy
+    group: haproxy
+    mode: "744"
+    remote_src: yes
+  become: true
+
+- name: Create exporter service
+  ansible.builtin.copy:
+    src: daemon/haproxy_exporter.service
+    dest: /etc/systemd/system/haproxy_exporter.service
+  become: true
+
+- name: Restart haproxy in systemd
+  ansible.builtin.systemd_service:
+    name: haproxy
+    state: restarted
+  become: true
+
+- name: Start exporter service
+  ansible.builtin.systemd_service:
+    name: haproxy_exporter
+    state: restarted
+    daemon_reload: true
+    enabled: true
+  become: true

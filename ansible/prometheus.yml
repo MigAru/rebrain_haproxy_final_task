@@ -1,0 +1,7 @@
+---
+- name: Prometheus
+  hosts:
+    - rebrain
+  roles:
+    - pre-installs
+    - prometheus

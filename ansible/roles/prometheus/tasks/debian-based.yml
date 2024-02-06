@@ -1,0 +1,189 @@
+---
+# ##############
+# creating users
+- name: Create tech user prometheus
+  ansible.builtin.user:
+    name: prometheus
+    shell: /bin/false
+    home: /
+    create_home: false
+  become: true
+
+- name: Create tech user node exporter
+  ansible.builtin.user:
+    name: node_exporter
+    shell: /bin/false
+    home: /
+    create_home: false
+  become: true
+
+- name: Create tech user alertmanager
+  ansible.builtin.user:
+    name: alertmanager
+    shell: /bin/false
+    home: /
+    create_home: false
+  become: true
+
+# ##############
+# download packages
+- name: Download prometheus pack
+  ansible.builtin.unarchive:
+    src: https://github.com/prometheus/prometheus/releases/download/v2.28.1/{{ prometheus_name }}.tar.gz
+    dest: /tmp/
+    remote_src: yes
+
+- name: Download node exporter
+  ansible.builtin.unarchive:
+    src: https://github.com/prometheus/node_exporter/releases/download/v1.2.0/{{ node_exporter_name }}.tar.gz
+    dest: /tmp/
+    remote_src: yes
+
+- name: Download alert manager
+  ansible.builtin.unarchive:
+    src: https://github.com/prometheus/alertmanager/releases/download/v0.22.2/{{ alert_manager_name }}.tar.gz
+    dest: /tmp/
+    remote_src: yes
+
+# ##############
+# copy binaries
+- name: Copy promtool
+  ansible.builtin.copy:
+    src: "/tmp/{{ prometheus_name }}/promtool"
+    dest: "/usr/local/bin/promtool"
+    owner: prometheus
+    group: prometheus
+    mode: "744"
+    remote_src: yes
+  become: true
+
+- name: Copy prometheus
+  ansible.builtin.copy:
+    src: "/tmp/{{ prometheus_name }}/prometheus"
+    dest: "/usr/local/bin/prometheus"
+    owner: prometheus
+    group: prometheus
+    mode: "744"
+    remote_src: yes
+  become: true
+
+- name: Copy node exporter
+  ansible.builtin.copy:
+    src: "/tmp/{{ node_exporter_name }}/node_exporter"
+    dest: "/usr/local/bin/node_exporter"
+    owner: node_exporter
+    group: node_exporter
+    mode: "744"
+    remote_src: yes
+  become: true
+
+- name: Copy alertmanager
+  ansible.builtin.copy:
+    src: "/tmp/{{ alert_manager_name }}/alertmanager"
+    dest: "/usr/local/bin/alertmanager"
+    owner: alertmanager
+    group: alertmanager
+    mode: "744"
+    remote_src: yes
+  become: true
+
+# ##############
+# create tech dirs
+- name: Create etc prometheus
+  ansible.builtin.file:
+    path: /etc/prometheus
+    state: directory
+    owner: prometheus
+    group: prometheus
+  become: true
+
+- name: Create lib prometheus
+  ansible.builtin.file:
+    path: /var/lib/prometheus
+    state: directory
+    owner: prometheus
+    group: prometheus
+  become: true
+
+- name: Create etc alertmanager
+  ansible.builtin.file:
+    path: /etc/alertmanager
+    state: directory
+    owner: alertmanager
+    group: alertmanager
+  become: true
+
+- name: Create lib alertmanager
+  ansible.builtin.file:
+    path: /var/lib/alertmanager
+    state: directory
+    owner: alertmanager
+    group: alertmanager
+  become: true
+
+# ##############
+# copy configuration
+- name: Copy configuration prometheus
+  ansible.builtin.copy:
+    src: config/prometheus.yml
+    dest: /etc/prometheus
+    owner: prometheus
+    group: prometheus
+    mode: "644"
+  become: true
+
+- name: Copy configuration alertmanager
+  ansible.builtin.copy:
+    src: /tmp/{{ alert_manager_name }}/alertmanager.yml
+    dest: /etc/alertmanager/alertmanager.yml
+    owner: alertmanager
+    group: alertmanager
+    mode: "644"
+    remote_src: yes
+  become: true
+
+# ##############
+# creatins services
+- name: Create prometheus service
+  ansible.builtin.copy:
+    src: daemon/prometheus.service
+    dest: /etc/systemd/system/prometheus.service
+  become: true
+
+- name: Create node_exporter service
+  ansible.builtin.copy:
+    src: daemon/node_exporter.service
+    dest: /etc/systemd/system/node_exporter.service
+  become: true
+
+- name: Create alertmanager service
+  ansible.builtin.copy:
+    src: daemon/alertmanager.service
+    dest: /etc/systemd/system/alertmanager.service
+  become: true
+
+# ##############
+# starting services
+- name: Start alertmanager service
+  ansible.builtin.systemd_service:
+    name: alertmanager
+    state: restarted
+    daemon_reload: true
+    enabled: true
+  become: true
+
+- name: Start node_exporter service
+  ansible.builtin.systemd_service:
+    name: node_exporter
+    state: restarted
+    daemon_reload: true
+    enabled: true
+  become: true
+
+- name: Start prometheus service
+  ansible.builtin.systemd_service:
+    name: prometheus
+    state: restarted
+    daemon_reload: true
+    enabled: true
+  become: true

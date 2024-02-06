@@ -1,0 +1,36 @@
+---
+- name: Copy configuration to sysconf for rsyslog
+  ansible.builtin.copy:
+    src: rsyslog/sysconfig/rsyslog.conf
+    dest: /etc/systemd/rsyslog.conf
+    owner: root
+    group: root
+    mode: "644"
+    backup: true
+  become: true
+
+- name: Copy configuration for rsyslog
+  ansible.builtin.copy:
+    src: rsyslog/rsyslog.conf
+    dest: /etc/rsyslog.conf
+    owner: root
+    group: root
+    mode: "644"
+    backup: true
+  become: true
+
+- name: Copy configuration for logrotate
+  ansible.builtin.copy:
+    src: log_rotate/logrotate.conf
+    dest: /etc/logrotate.conf
+    owner: root
+    group: root
+    mode: "644"
+    backup: true
+  become: true
+
+- name: Reload rsyslog in systemd
+  ansible.builtin.systemd_service:
+    name: rsyslog
+    state: restarted
+  become: true

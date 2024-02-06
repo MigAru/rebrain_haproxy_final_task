@@ -1,0 +1,11 @@
+- name: Install or Update required system packages
+  apt:
+    pkg:
+      - adduser
+      - libfontconfig1
+      - musl
+      - curl
+      - wget
+    state: latest
+    update_cache: true
+  become: true
