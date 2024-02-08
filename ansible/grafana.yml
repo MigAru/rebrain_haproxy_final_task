@@ -1,6 +1,0 @@
----
-- name: Grafana
-  hosts: master
-  roles:
-    - pre-installs
-    - grafana

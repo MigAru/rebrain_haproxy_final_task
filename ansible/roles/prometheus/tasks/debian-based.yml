@@ -29,62 +29,62 @@
 # download packages
 - name: Download prometheus pack
   ansible.builtin.unarchive:
-    src: https://github.com/prometheus/prometheus/releases/download/v2.28.1/{{ prometheus_name }}.tar.gz
+    src: https://github.com/prometheus/prometheus/releases/download/v{{ prometheus.version }}/{{ prometheus.name }}.tar.gz
     dest: /tmp/
-    remote_src: yes
+    remote_src: true
 
 - name: Download node exporter
   ansible.builtin.unarchive:
-    src: https://github.com/prometheus/node_exporter/releases/download/v1.2.0/{{ node_exporter_name }}.tar.gz
+    src: https://github.com/prometheus/node_exporter/releases/download/v{{ exporter.version }}/{{ exporter.name }}.tar.gz
     dest: /tmp/
-    remote_src: yes
+    remote_src: true
 
 - name: Download alert manager
   ansible.builtin.unarchive:
-    src: https://github.com/prometheus/alertmanager/releases/download/v0.22.2/{{ alert_manager_name }}.tar.gz
+    src: https://github.com/prometheus/alertmanager/releases/download/v{{ alert_manager.version }}/{{ alert_manager.name }}.tar.gz
     dest: /tmp/
-    remote_src: yes
+    remote_src: true
 
 # ##############
 # copy binaries
 - name: Copy promtool
   ansible.builtin.copy:
-    src: "/tmp/{{ prometheus_name }}/promtool"
+    src: "/tmp/{{ prometheus.name }}/promtool"
     dest: "/usr/local/bin/promtool"
     owner: prometheus
     group: prometheus
     mode: "744"
-    remote_src: yes
+    remote_src: true
   become: true
 
 - name: Copy prometheus
   ansible.builtin.copy:
-    src: "/tmp/{{ prometheus_name }}/prometheus"
+    src: "/tmp/{{ prometheus.name }}/prometheus"
     dest: "/usr/local/bin/prometheus"
     owner: prometheus
     group: prometheus
     mode: "744"
-    remote_src: yes
+    remote_src: true
   become: true
 
 - name: Copy node exporter
   ansible.builtin.copy:
-    src: "/tmp/{{ node_exporter_name }}/node_exporter"
+    src: "/tmp/{{ prometheus.name }}/node_exporter"
     dest: "/usr/local/bin/node_exporter"
     owner: node_exporter
     group: node_exporter
     mode: "744"
-    remote_src: yes
+    remote_src: true
   become: true
 
 - name: Copy alertmanager
   ansible.builtin.copy:
-    src: "/tmp/{{ alert_manager_name }}/alertmanager"
+    src: "/tmp/{{ prometheus.name }}/alertmanager"
     dest: "/usr/local/bin/alertmanager"
     owner: alertmanager
     group: alertmanager
     mode: "744"
-    remote_src: yes
+    remote_src: true
   become: true
 
 # ##############
@@ -95,6 +95,7 @@
     state: directory
     owner: prometheus
     group: prometheus
+    mode: "644"
   become: true
 
 - name: Create lib prometheus
@@ -103,6 +104,7 @@
     state: directory
     owner: prometheus
     group: prometheus
+    mode: "644"
   become: true
 
 - name: Create etc alertmanager
@@ -111,6 +113,7 @@
     state: directory
     owner: alertmanager
     group: alertmanager
+    mode: "644"
   become: true
 
 - name: Create lib alertmanager
@@ -119,6 +122,7 @@
     state: directory
     owner: alertmanager
     group: alertmanager
+    mode: "644"
   become: true
 
 # ##############
@@ -134,12 +138,12 @@
 
 - name: Copy configuration alertmanager
   ansible.builtin.copy:
-    src: /tmp/{{ alert_manager_name }}/alertmanager.yml
+    src: /tmp/{{ alert_manager.name }}/alertmanager.yml
     dest: /etc/alertmanager/alertmanager.yml
     owner: alertmanager
     group: alertmanager
     mode: "644"
-    remote_src: yes
+    remote_src: true
   become: true
 
 # ##############
@@ -148,18 +152,27 @@
   ansible.builtin.copy:
     src: daemon/prometheus.service
     dest: /etc/systemd/system/prometheus.service
+    owner: root
+    group: root
+    mode: "755"
   become: true
 
 - name: Create node_exporter service
   ansible.builtin.copy:
     src: daemon/node_exporter.service
     dest: /etc/systemd/system/node_exporter.service
+    owner: root
+    group: root
+    mode: "755"
   become: true
 
 - name: Create alertmanager service
   ansible.builtin.copy:
     src: daemon/alertmanager.service
     dest: /etc/systemd/system/alertmanager.service
+    owner: root
+    group: root
+    mode: "755"
   become: true
 
 # ##############

@@ -9,3 +9,4 @@
     - keepalived
     - haproxy
     - prometheus
+    - grafana

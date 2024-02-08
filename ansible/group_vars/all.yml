@@ -1,0 +1,18 @@
+prometheus:
+  version: "2.28.1"
+  name: "prometheus-{{ prometheus.version }}.linux-amd64"
+
+exporter:
+  version: "1.2.0"
+  name: "node_exporter-{{ exporter.version }}.linux-amd64"
+
+alert_manager:
+  version: "0.22.2"
+  name: "alertmanager-{{ alert_manager.version }}.linux-amd64"
+
+keepalived:
+  master: "123"
+  mask: 51.250.86.11/24 brd 51.250.86.255 scope global label eth0:10
+  backups:
+    - "1234"
+    - "12345"

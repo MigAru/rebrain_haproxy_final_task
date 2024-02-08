@@ -1,0 +1,45 @@
+{% if inventory_hostname == "master" %} 
+global_defs {
+    notification_email {
+        test@mail.ru  
+        smtp_connect_timeout 30
+        enable_traps
+    }
+}
+{% endif %}
+
+vrrp_script haproxy {
+    script "killall -0 haproxy"
+    interval 2
+    weight 2
+}        
+
+vrrp_instance VRRP1 {
+{% if inventory_hostname == "master" %} 
+    state MASTER
+    priority 101 
+    {% else %} 
+    state BACKUP
+    priority 100 {% endif %}    
+    interface eth0
+    virtual_router_id 69
+    advert_int 1
+    garp_master_delay 10
+    debug 1
+    authentication {
+        auth_type PASS
+        auth_pass 1066
+    }
+    unicast_src_ip {{ keepalived.master }}
+    unicast_peer {
+    {% for ip in keepalived.backups  %}
+    {{ ip }}
+    {% endfor %}
+}
+    virtual_ipaddress {
+        {{ keepalived.mask }}
+    }
+    track_script {
+        haproxy
+    }
+}
